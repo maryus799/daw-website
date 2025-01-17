@@ -1,0 +1,36 @@
+@import "general.css";
+
+.grid-jucarii{
+    display:grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    column-gap: 5px;
+    row-gap: 15px;
+}
+
+@media screen and (max-width: 1200px)
+{
+    .grid-jucarii{
+        grid-template-columns: 1fr 1fr;
+        background-color: white;
+    }
+}
+
+h2.titlu:hover p.pret{
+  animation-name: schimbare_culoare;
+  animation-iteration-count: 1;
+  animation-duration: 3s;
+  animation-fill-mode: forwards;
+  animation-timing-function: linear;
+}
+
+@keyframes aparitie_meniu {
+    0% {
+        background-color: red;
+    }
+    50% {
+        background-color: blue;
+    }
+    100% {
+      background-color: pink;
+    }
+  }

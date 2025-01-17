@@ -1,0 +1,71 @@
+@import "general.css";
+
+#grid-pagina {
+    display: grid;
+    padding: var(--dimensiune-universala);
+    --variabila-grid: "welcome  welcome"
+        "app1     app2"
+        "anunturi anunturi";
+    grid-template-areas: var(--variabila-grid);
+}
+#grid-pagina>*{
+    padding: var(--dimensiune-universala);
+    background-color: var(--culoare-albastra2);
+}
+
+#welcome {
+    background-color: var(--culoare-negru);
+    grid-area: welcome;
+}
+
+#app1 {
+    grid-area: app1;
+}
+
+#app2 {
+    grid-area: app2;
+}
+
+#anunturi {
+    background-color: var(--culoare-negru);
+    grid-area: anunturi;
+}
+
+@media screen and (max-width: 1500px) {
+    html {
+        font-size: var(--dimensiune-medie);
+    }
+
+    body {
+        --dimensiune: var(--dimensiune-mare2);
+    }
+
+    
+    #grid-pagina{
+        display: block;
+    }
+
+    #stil-video {
+        display: flex;
+        justify-content: center;
+    }
+
+    video {
+        width: 90%; /* Adjust width to fit smaller screens */
+        height: auto; /* Keep aspect ratio */
+    }
+}
+
+@media screen and (max-width: 700px) {
+    html {
+        font-size: var(--dimensiune-universala);
+    }
+
+    body {
+        --dimensiune: var(--dimensiune-mare);
+    }
+    video {
+        width: 100%; /* Make the video full width on smaller screens */
+        height: auto; /* Maintain aspect ratio */
+    }
+}
