@@ -25,16 +25,18 @@ if (isset($_POST['toggle_form'])) {
 
 // Dacă se apasă pe butonul de editare, salvează datele
 if (isset($_GET['edit_id'])) {
-    $edit_id = $_GET['edit_id'];
-    $editQuery = "SELECT * FROM reviste WHERE id = $edit_id";
-    $editResult = mysqli_query($link, $editQuery);
-    $editRow = mysqli_fetch_assoc($editResult);
+    $edit_id = intval($_GET['edit_id']); // Convertim în întreg pentru a evita injecția
+    $stmt = $link->prepare("SELECT * FROM reviste WHERE id = ?");
+    $stmt->bind_param("i", $edit_id);
+    $stmt->execute();
+    $editRow = $stmt->get_result()->fetch_assoc();
 
     // Salvează datele revistei pentru a le prepopula în formular
     $_SESSION['edit_data'] = $editRow;
 
     // Schimbă starea formularului pentru editare
     $_SESSION['form_state'] = 'visible';
+    $stmt->close();
 } else {
     // Dacă nu se editează, resetăm datele de editare
     unset($_SESSION['edit_data']);
@@ -43,42 +45,54 @@ if (isset($_GET['edit_id'])) {
 // Creare Revista Nouă
 if (isset($_POST['create'])) {
     $titlu = $_POST['titlu'];
+    $imagine = "../resurse/imagini/reviste/jocuri.jpg"; 
     $descriere = $_POST['descriere'];
     $categorie = $_POST['categorie'];
-    $varsta = $_POST['varsta'];
+    $varsta = intval($_POST['varsta']);
     $autor = $_POST['autor'];
+    $id_utilizator = 1; // Exemplu pentru id_utilizator
 
     // Verifică dacă revista există deja
-    $checkQuery = "SELECT * FROM reviste WHERE titlu = '$titlu'";
-    $checkResult = mysqli_query($link, $checkQuery);
+    $stmt = $link->prepare("SELECT * FROM reviste WHERE titlu = ?");
+    $stmt->bind_param("s", $titlu);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-    if (mysqli_num_rows($checkResult) > 0) {
+    if ($result->num_rows > 0) {
         echo "<script>alert('Revista există deja!');</script>";
     } else {
-        $query = "INSERT INTO reviste (titlu, descriere_scurta, categorie, varsta, autor, id_admin) VALUES ('$titlu', '$descriere', '$categorie', $varsta, '$autor', 1)";
-        mysqli_query($link, $query);
+        $stmt = $link->prepare("INSERT INTO reviste (titlu, imagine, descriere_scurta, categorie, varsta, autor, id_utilizator) 
+                  VALUES (?, ?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("ssssisi", $titlu, $imagine, $descriere, $categorie, $varsta, $autor, $id_utilizator);
+        $stmt->execute();
         echo "<script>document.getElementById('form-container').scrollIntoView({ behavior: 'smooth' });</script>";
+        $stmt->close();
     }
 }
 
 // Actualizează revista existentă
 if (isset($_POST['update'])) {
-    $id = $_POST['id'];
+    $id = intval($_POST['id']);
     $titlu = $_POST['titlu'];
     $descriere = $_POST['descriere'];
     $categorie = $_POST['categorie'];
-    $varsta = $_POST['varsta'];
+    $varsta = intval($_POST['varsta']);
     $autor = $_POST['autor'];
 
-    $query = "UPDATE reviste SET titlu='$titlu', descriere_scurta='$descriere', categorie='$categorie', varsta=$varsta, autor='$autor' WHERE id=$id";
-    mysqli_query($link, $query);
+    $stmt = $link->prepare("UPDATE reviste SET titlu = ?, descriere_scurta = ?, categorie = ?, varsta = ?, autor = ? WHERE id = ?");
+    $stmt->bind_param("sssisi", $titlu, $descriere, $categorie, $varsta, $autor, $id);
+    $stmt->execute();
+    $stmt->close();
 }
 
 // Șterge revista
 if (isset($_POST['delete'])) {
-    $id = $_POST['id'];
-    $query = "DELETE FROM reviste WHERE id=$id";
-    mysqli_query($link, $query);
+    $id = intval($_POST['id']);
+
+    $stmt = $link->prepare("DELETE FROM reviste WHERE id = ?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $stmt->close();
 
     // Setează formularul ca ascuns după ștergere
     $_SESSION['form_state'] = 'hidden';
@@ -88,8 +102,8 @@ if (isset($_POST['delete'])) {
     exit;
 }
 
-$result = mysqli_query($link, "SELECT * FROM reviste");
-mysqli_close($link);
+$result = $link->query("SELECT * FROM reviste");
+$link->close();
 ?>
 
 <!DOCTYPE html>
@@ -176,6 +190,7 @@ mysqli_close($link);
                     <tr>
                         <th>ID</th>
                         <th>Titlu</th>
+                        <th>Imagine</th>
                         <th>Descriere</th>
                         <th>Categorie</th>
                         <th>Vârstă</th>
@@ -184,10 +199,11 @@ mysqli_close($link);
                     </tr>
                 </thead>
                 <tbody>
-                    <?php while ($row = mysqli_fetch_assoc($result)) { ?>
+                    <?php while ($row = $result->fetch_assoc()) { ?>
                         <tr>
                             <td><?= $row['id'] ?></td>
                             <td><a href="revista.php?id=<?= $row['id'] ?>" class="text-decoration-none"><?= $row['titlu'] ?></a></td>
+                            <td><img src="/uploads/<?= $row['imagine'] ?>" alt="Imagine" width="50"></td>
                             <td><?= $row['descriere_scurta'] ?></td>
                             <td><?= $row['categorie'] ?></td>
                             <td><?= $row['varsta'] ?></td>
@@ -206,7 +222,6 @@ mysqli_close($link);
 
             <!-- Formular pentru Crează/Update -->
             <div id="form-container" class="form-container <?php echo isset($_SESSION['form_state']) && $_SESSION['form_state'] === 'hidden' ? 'hidden' : ''; ?>">
-
 
                 <form method="POST">
                     <input type="hidden" name="id" value="<?= isset($_SESSION['edit_data']) ? $_SESSION['edit_data']['id'] : '' ?>">
