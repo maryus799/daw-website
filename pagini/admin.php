@@ -1,37 +1,15 @@
+<?php include('../fragmente/sesiune_admin.php'); ?>
 <?php
-session_start(); // Inițializează sesiunea
-
-// Inițializează starea formularului editabil 
-if (!isset($_SESSION['form_state'])) {
-    $_SESSION['form_state'] = 'hidden'; // Ascunde formularul la început
-}
-
-// // Inițializează starea formularului de adaugat 
-// if (!isset($_SESSION['toggle_form'])) {
-//     $_SESSION['toggle_form'] = 'hidden'; // Ascunde formularul la început
-// }
-
-// Conectare la baza de date
-$link = mysqli_connect("localhost", "rrgb3601_manolovsky", "00\$QU6wgbPjt", "rrgb3601_manolovsky");
-
-mysqli_set_charset($link, "utf8mb4");
-
-if (!$link) {
-    echo "Error: Unable to connect to MySQL.";
-    exit;
-}
-
-// Verifică dacă utilizatorul este logat
-if (!isset($_SESSION['username'])) {
-    header("Location:../pagini/login.php");
-    exit;
-}
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['toggle_form'])) {
     $_SESSION['form_state'] = 'visible';
     unset($_SESSION['edit_data']); // Resetează datele de editare
     header("Location: " . strtok($_SERVER['REQUEST_URI'], '?')); // Elimină parametrii din URL
     exit;
+}
+
+// Inițializează starea formularului editabil 
+if (!isset($_SESSION['form_state'])) {
+    $_SESSION['form_state'] = 'hidden'; // Ascunde formularul la început
 }
 
 // Resetăm formularul atunci când se apasă pe "Adaugă revistă nouă"

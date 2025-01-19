@@ -375,7 +375,7 @@ main div #err-imag img{
   
 /* Setăm background-ul fix la scroll */
 .fixed-background {
-    background-image: url('/resurse/imagini/background/1.jpg');
+    background-image: url('/manolovSky/resurse/imagini/background/1.jpg');
     background-size: cover;
     background-attachment: fixed;
     width: 100%;
@@ -385,10 +385,10 @@ main div #err-imag img{
   /* Adăugăm tranziția pentru schimbarea imaginii de background */
   @keyframes changeBackground {
     50% {
-      background-image: url('/resurse/imagini/background/2.jpg');
+      background-image: url('/manolovSky/resurse/imagini/background/2.jpg');
     }
     100% {
-      background-image: url('/resurse/imagini/background/3.jpg');
+      background-image: url('/manolovSky/resurse/imagini/background/3.jpg');
     }
   }
 

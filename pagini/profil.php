@@ -1,19 +1,5 @@
+<?php include('../fragmente/sesiune_user.php'); ?>
 <?php
-session_start(); // Inițializează sesiunea
-
-// Verifică dacă utilizatorul este logat
-if (!isset($_SESSION['username'])) {
-    header("Location:../pagini/login.php"); // Redirecționează utilizatorul la pagina de login dacă nu este autentificat
-    exit;
-}
-
-$link = mysqli_connect("localhost", "rrgb3601_manolovsky", "00\$QU6wgbPjt", "rrgb3601_manolovsky");
-mysqli_set_charset($link, "utf8mb4");
-
-if (!$link) {
-    echo "Error: Unable to connect to MySQL."; // Afișează un mesaj de eroare dacă nu s-a putut conecta la baza de date
-    exit;
-}
 
 // Preia datele utilizatorului din baza de date
 $username = $_SESSION['username']; 

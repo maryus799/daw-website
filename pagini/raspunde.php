@@ -1,29 +1,13 @@
+<?php include('../fragmente/sesiune_admin.php'); ?>
 <?php
-session_start(); // Inițializează sesiunea
-
-// Verifică dacă utilizatorul este logat
-if (!isset($_SESSION['username'])) {
-    header("Location:../pagini/login.php");
-    exit;
-}
-
-$link = mysqli_connect("localhost", "rrgb3601_manolovsky", "00\$QU6wgbPjt", "rrgb3601_manolovsky");
-
-mysqli_set_charset($link, "utf8mb4");
-
-if (!$link) {
-    echo "Error: Unable to connect to MySQL.";
-    exit;
-}
-
-// Handle Delete
+// Stergere
 if (isset($_POST['delete'])) {
     $id = $_POST['id'];
     $query = "DELETE FROM cereri_contact WHERE id=$id";
     mysqli_query($link, $query);
 }
 
-// Handle Respond (sending an email)
+// Trimitere Email
 if (isset($_POST['respond'])) {
     $id = $_POST['id'];
     $message = $_POST['response_message'];
@@ -141,7 +125,7 @@ mysqli_close($link);
     <main>
         <div class="container mt-4">
             <h1>Gestionare Formulare Contact</h1>
-            <!-- Table with CRUD Options -->
+            <!-- Afisare tabel -->
             <table class="table table-striped">
                 <thead>
                     <tr>

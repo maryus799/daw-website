@@ -1,20 +1,5 @@
+<?php include('../fragmente/sesiune_user.php'); ?>
 <?php
-session_start(); // Inițializează sesiunea
-
-// Verifică dacă utilizatorul este logat
-if (!isset($_SESSION['username'])) {
-    header("Location:../pagini/login.php");
-    exit;
-}
-
-$link = mysqli_connect("localhost", "rrgb3601_manolovsky", "00\$QU6wgbPjt", "rrgb3601_manolovsky");
-mysqli_set_charset($link, "utf8mb4");
-
-if (!$link) {
-    echo "Error: Unable to connect to MySQL.";
-    exit;
-}
-
 $result = mysqli_query($link, "SELECT * FROM reviste");
 mysqli_close($link);
 ?>

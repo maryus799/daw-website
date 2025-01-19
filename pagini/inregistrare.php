@@ -1,6 +1,5 @@
 <?php
 session_start();
-include('../recaptcha/verify_recaptcha.php');
 $link = mysqli_connect("localhost", "rrgb3601_manolovsky", "00\$QU6wgbPjt", "rrgb3601_manolovsky");
 
 mysqli_set_charset($link, "utf8mb4");
@@ -11,13 +10,11 @@ if (!$link) {
 }
 
 $error_message = "";
-$show_recaptcha = false;
 
 if (isset($_POST['register'])) {
     // Verificăm dacă câmpurile sunt completate
     if (empty($_POST['username']) || empty($_POST['password'])) {
         $error_message = "Numele de utilizator și parola sunt obligatorii.";
-        $show_recaptcha = true; 
     } else {
         $username = mysqli_real_escape_string($link, $_POST['username']);
         $password = mysqli_real_escape_string($link, $_POST['password']);
@@ -26,7 +23,6 @@ if (isset($_POST['register'])) {
         $result = mysqli_query($link, "SELECT * FROM utilizatori WHERE nume_utilizator='$username'");
         if (mysqli_num_rows($result) > 0) {
             $error_message = "Acest nume de utilizator este deja utilizat.";
-            $show_recaptcha = true; // Activează reCAPTCHA
         } else {
             // Generăm un cod aleator de verificare
             $verification_code = rand(100000, 999999);
@@ -73,18 +69,6 @@ if (isset($_POST['register'])) {
             } else {
                 $error_message = "A apărut o eroare la înregistrare. Te rugăm să încerci din nou.";
             }
-        }
-    }
-
-    // Pasul 2: Dacă reCAPTCHA este afișat, verifică răspunsul
-    if ($show_recaptcha && isset($_POST['g-recaptcha-response'])) {
-        $recaptcha_response = $_POST['g-recaptcha-response'];
-        $recaptcha_valid = verify_recaptcha($recaptcha_response); // Funcție definită în verify_recaptcha.php
-
-        if (!$recaptcha_valid) {
-            $error_message = "Verificarea reCAPTCHA a eșuat. Te rugăm să încerci din nou.";
-            mysqli_close($link);
-            return;
         }
     }
 }

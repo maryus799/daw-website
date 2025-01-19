@@ -11,20 +11,21 @@ if (!$link) {
 }
 
 $error_message = "";
-$show_recaptcha = true; // Setăm ca reCAPTCHA să fie întotdeauna vizibil
+$show_recaptcha = isset($_SESSION['failed_attempt']) && $_SESSION['failed_attempt'] >= 1;
 
 if (isset($_POST['login'])) {
-    // Verificăm dacă reCAPTCHA a fost bifat
-    if (empty($_POST['g-recaptcha-response'])) {
+    $username = mysqli_real_escape_string($link, $_POST['username']);
+    $password = mysqli_real_escape_string($link, $_POST['password']);
+
+    // Dacă există o încercare eșuată, verificăm reCAPTCHA
+    if ($show_recaptcha && empty($_POST['g-recaptcha-response'])) {
         $error_message = "Te rugăm să bifezi reCAPTCHA.";
     } else {
-        // Dacă reCAPTCHA a fost bifat, continuăm cu validarea userului și parolei
-        $username = mysqli_real_escape_string($link, $_POST['username']);
-        $password = mysqli_real_escape_string($link, $_POST['password']);
-
-        // Verificăm dacă răspunsul la reCAPTCHA este valid
-        $recaptcha_response = $_POST['g-recaptcha-response'];
-        $recaptcha_valid = verify_recaptcha($recaptcha_response); // Funcție definită în verify_recaptcha.php
+        $recaptcha_valid = true;
+        if ($show_recaptcha) {
+            $recaptcha_response = $_POST['g-recaptcha-response'];
+            $recaptcha_valid = verify_recaptcha($recaptcha_response);
+        }
 
         if (!$recaptcha_valid) {
             $error_message = "Verificarea reCAPTCHA a eșuat. Te rugăm să încerci din nou.";
@@ -38,8 +39,8 @@ if (isset($_POST['login'])) {
                 if ($password === $user['parola']) {
                     if ($user['verificat'] == 1) {
                         $_SESSION['username'] = $username;
+                        unset($_SESSION['failed_attempt']); // Resetăm contorul încercărilor
 
-                        // Verifică rolul utilizatorului
                         if ($user['rol'] == 'utilizator') {
                             header("Location: ../pagini/user.php");
                         } elseif ($user['rol'] == 'administrator') {
@@ -52,14 +53,19 @@ if (isset($_POST['login'])) {
                         $error_message = "Contul tău nu este verificat. Te rugăm să verifici emailul pentru a activa contul.";
                     }
                 } else {
+                    $_SESSION['failed_attempt'] = ($_SESSION['failed_attempt'] ?? 0) + 1;
+                    $show_recaptcha = true;
                     $error_message = "Nume de utilizator sau parolă incorecte.";
                 }
             } else {
+                $_SESSION['failed_attempt'] = ($_SESSION['failed_attempt'] ?? 0) + 1;
+                $show_recaptcha = true;
                 $error_message = "Nume de utilizator sau parolă incorecte.";
             }
         }
     }
 }
+
 mysqli_close($link);
 ?>
 

@@ -1,20 +1,5 @@
+<?php include('../fragmente/sesiune_admin.php'); ?>
 <?php
-session_start(); // Inițializează sesiunea
-
-// Verifică dacă utilizatorul este logat
-if (!isset($_SESSION['username'])) {
-    header("Location:../pagini/login.php");
-    exit;
-}
-
-// Conectare la baza de date
-$link = mysqli_connect("localhost", "rrgb3601_manolovsky", "00\$QU6wgbPjt", "rrgb3601_manolovsky");
-mysqli_set_charset($link, "utf8mb4");
-
-if (!$link) {
-    die("Error: Unable to connect to MySQL.");
-}
-
 // Handle Create
 if (isset($_POST['create'])) {
     $nume = mysqli_real_escape_string($link, $_POST['nume_utilizator']);
